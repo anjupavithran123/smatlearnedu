@@ -1,12 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "server.js",
-  "scripts": {
+  "main": "server.js","scripts": {
   "start": "node server.js",
-  "build:frontend": "npm ci --prefix frontend && npm run build --prefix frontend",
+  "build:frontend": "npm install --prefix frontend && npm run build --prefix frontend",
   "postinstall": "npm run build:frontend"
-},
+}
+,
   "keywords": [],
   "author": "",
   "license": "ISC",
