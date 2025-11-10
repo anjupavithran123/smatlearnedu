@@ -15,10 +15,10 @@ const instructorRoutes = require('./routes/instructor');
 
 const app = express();
 
-// Connect to MongoDB early so startup fails fast if DB is unreachable
+// Connect to MongoDB
 connectDB().catch(err => {
-  console.error("Failed to connect to DB on startup:", err);
-  // optional: process.exit(1);
+  console.error('Failed to connect to MongoDB on startup:', err);
+  process.exit(1); // Stop server if DB is unreachable
 });
 
 // Middlewares
@@ -31,7 +31,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// API routes (mount before static/spa fallback)
+// API routes (must come before static file serving)
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/quizzes', quizzesRouter);
@@ -44,35 +44,32 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 
 /**
  * STATIC FRONTEND SERVING
- *
- * Production build usually lands in frontend/dist (Vite) or frontend/build (CRA).
- * Adjust FRONTEND_BUILD_DIR accordingly.
+ * Make sure frontend build is copied to backend/public
  */
-const FRONTEND_BUILD_DIR = path.join(__dirname, '..', 'frontend', 'dist');
-// const FRONTEND_BUILD_DIR = path.join(__dirname, '..', 'frontend', 'build'); // use if CRA
+const FRONTEND_BUILD_DIR = path.join(__dirname, 'public'); // copy dist files here
 
-// Serve static files if the build directory exists
+// Serve static frontend files
 app.use(express.static(FRONTEND_BUILD_DIR));
 
-// SPA fallback: return index.html for any non-API route.
-// This must come after mounting API routes so /api/* still work.
+// SPA fallback: return index.html for any non-API route
 app.get(/.*/, (req, res, next) => {
-  // If request is for API, skip this handler so API 404s work correctly
-  if (req.path.startsWith('/api')) return next();
+  if (req.path.startsWith('/api')) return next(); // skip API routes
 
   const indexPath = path.join(FRONTEND_BUILD_DIR, 'index.html');
 
   res.sendFile(indexPath, (err) => {
     if (err) {
       console.error('Error sending index.html:', err);
-
-      // If index.html is missing, respond with helpful message instead of generic 404
-      return res.status(500).send('Frontend build not found. Did you run the frontend build?');
+      return res
+        .status(500)
+        .send(
+          'Frontend build not found. Did you run "npm run build" and copy it to backend/public?'
+        );
     }
   });
 });
 
-// Generic 404 for API routes or if static files not found
+// Generic 404 for API routes or missing static files
 app.use((req, res, next) => {
   res.status(404).json({ error: 'Not Found' });
 });
