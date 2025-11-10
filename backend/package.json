@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
   "start": "node server.js",
-  "build:frontend": "cd ../frontend && npm ci && npm run build",
+  "build:frontend": "npm ci --prefix frontend && npm run build --prefix frontend",
   "postinstall": "npm run build:frontend"
 },
   "keywords": [],
