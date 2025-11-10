@@ -2,7 +2,7 @@ import axios from "axios";
 
 // ✅ Create axios instance
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || "http://localhost:4000/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || "https://smatlearnedubackend4.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },
