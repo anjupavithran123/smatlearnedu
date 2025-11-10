@@ -1,4 +1,4 @@
-// server.js
+// backend/server.js
 const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
@@ -18,15 +18,14 @@ const app = express();
 // Connect to MongoDB early so startup fails fast if DB is unreachable
 connectDB().catch(err => {
   console.error("Failed to connect to DB on startup:", err);
-  // do not exit here in some environments, but you can if desired:
-  // process.exit(1);
+  // optional: process.exit(1);
 });
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Simple request logger (keeps your original debug behavior)
+// Simple request logger
 app.use((req, res, next) => {
   console.log(`[INCOMING] ${req.method} ${req.originalUrl}`);
   next();
@@ -40,33 +39,33 @@ app.use('/api/progress', ProgressRouter);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/instructor', instructorRoutes);
 
-// Health check route (useful for Render or any platform health checks)
+// Health check route
 app.get('/health', (req, res) => res.json({ ok: true }));
 
 /**
  * STATIC FRONTEND SERVING
  *
- * If you are using Vite, your production build usually lands in frontend/dist
- * If you are using Create React App, it usually lands in frontend/build
- *
+ * Production build usually lands in frontend/dist (Vite) or frontend/build (CRA).
  * Adjust FRONTEND_BUILD_DIR accordingly.
  */
 const FRONTEND_BUILD_DIR = path.join(__dirname, '..', 'frontend', 'dist');
-// <-- change to 'frontend/build' if CRA
+// const FRONTEND_BUILD_DIR = path.join(__dirname, '..', 'frontend', 'build'); // use if CRA
 
 // Serve static files if the build directory exists
 app.use(express.static(FRONTEND_BUILD_DIR));
 
 // SPA fallback: return index.html for any non-API route.
 // This must come after mounting API routes so /api/* still work.
-app.get('*', (req, res, next) => {
-  // If request starts with /api, forward to 404 handler rather than serving index
+app.get(/.*/, (req, res, next) => {
+  // If request is for API, skip this handler so API 404s work correctly
   if (req.path.startsWith('/api')) return next();
 
   const indexPath = path.join(FRONTEND_BUILD_DIR, 'index.html');
+
   res.sendFile(indexPath, (err) => {
     if (err) {
       console.error('Error sending index.html:', err);
+
       // If index.html is missing, respond with helpful message instead of generic 404
       return res.status(500).send('Frontend build not found. Did you run the frontend build?');
     }
