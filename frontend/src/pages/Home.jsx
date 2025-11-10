@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 // Adjusted imports — make sure these images exist in src/assets/
-import Onlinelearn from "../assets/Onlinelearn.jpg";
+import Onlinelearn from "../assets/onlinelearn.jpg";
 import Smartleaern from "../assets/smartlearn.jpg";
 import test1 from "../assets/test1.jpg";
 import test2 from "../assets/test2.jpg";
