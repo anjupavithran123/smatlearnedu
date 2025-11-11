@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API, { setAuthToken } from "../lib/api";
-import { Eye, Edit, Trash2, PlusCircle } from "lucide-react"; // nice icons
+import { Eye, Edit, Trash2, PlusCircle } from "lucide-react";
 
 export default function InstructorDashboard() {
   const navigate = useNavigate();
@@ -19,6 +19,7 @@ export default function InstructorDashboard() {
     const token = localStorage.getItem("token");
     if (token) setAuthToken(token);
     fetchCourses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCourses = async () => {
@@ -118,7 +119,7 @@ export default function InstructorDashboard() {
       title: course.title || "",
       description: course.description || "",
       videoLinks: Array.isArray(course.videoLinks) && course.videoLinks.length > 0 ? course.videoLinks : [""],
-      price: course.price ? course.price / 100 : 0, // convert paise → ₹
+      price: course.price ? course.price / 100 : 0,
     });
     setEditingId(course._id || course.id || null);
     toggleCreate(true);
@@ -129,7 +130,7 @@ export default function InstructorDashboard() {
     setLoadingQuizzes((s) => ({ ...s, [courseId]: true }));
     try {
       const res = await API.get(`/quizzes?courseId=${courseId}`);
-      const list = res.data.quizzes || [];
+      const list = res.data.quizzes || res.data.data || [];
       setQuizzes((prev) => ({ ...prev, [courseId]: list }));
     } catch {
       setQuizzes((prev) => ({ ...prev, [courseId]: [] }));
@@ -155,241 +156,268 @@ export default function InstructorDashboard() {
   const openEditQuiz = (quizId) => navigate(`/instructor/quiz/${quizId}/edit`);
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 p-6">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Instructor Dashboard</h1>
+    <div className="min-h-screen bg-gradient-to-b from-white to-indigo-50">
+      {/* HEADER — matches Signup/Login header style */}
+      <header className="fixed top-0 left-0 right-0 z-30 bg-gradient-to-r from-indigo-800 via-purple-700 to-pink-600 text-white shadow-2xl">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="inline-flex items-center gap-4">
+            <div className="h-15 w-15 rounded-lg bg-white/10 flex items-center justify-center backdrop-blur">
+              <span className="text-white font-extrabold">SL</span>
+            </div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-lg font-extrabold">Smart_Learn</span>
+              <span className="text-xs text-white/80">Instructor Panel</span>
+            </div>
+          </div>
+
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/instructor/dashboard")}
-              className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+              className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-md bg-white/10 hover:bg-white/20 text-white transition"
             >
               View Details
             </button>
+
             <button
               onClick={openCreate}
-              className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg shadow transition"
+              className="flex items-center gap-2 px-3 py-2 rounded-md bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow"
             >
               <PlusCircle className="w-4 h-4" /> Create Course
             </button>
-            {showCreate && (
-              <button
-                onClick={() => {
-                  resetForm();
-                  toggleCreate(false);
-                }}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-100 transition"
-              >
-                Cancel
-              </button>
-            )}
+
+            <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                navigate("/login");
+              }}
+              className="px-3 py-2 rounded-md bg-white/10 hover:bg-white/20"
+            >
+              Logout
+            </button>
           </div>
         </div>
+      </header>
 
-        {/* Course Form */}
-        <div
-          ref={formRef}
-          className={`overflow-hidden transition-all duration-300 ${
-            showCreate ? "max-h-[1300px] opacity-100" : "max-h-0 opacity-0"
-          }`}
-        >
-          <div className="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">
-              {editingId ? "Edit Course" : "Create Course"}
-            </h2>
+      {/* main content with top padding to avoid header overlap */}
+      <main className="pt-24 p-6">
+        <div className="max-w-6xl mx-auto">
+          {/* Header row inside page */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">Instructor Dashboard</h1>
+              <p className="text-sm text-gray-600 mt-1">Manage courses and quizzes — quick & easy.</p>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                value={form.title}
-                onChange={(e) => setField("title", e.target.value)}
-                placeholder="Course Title"
-                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-orange-400 focus:outline-none"
-                required
-              />
-              <textarea
-                value={form.description}
-                onChange={(e) => setField("description", e.target.value)}
-                placeholder="Course Description"
-                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-orange-400 focus:outline-none"
-                rows={4}
-              />
-              <div>
-                <label className="block font-medium text-gray-700 mb-1">Price (₹)</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={form.price}
-                  onChange={(e) => setField("price", e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-orange-400 focus:outline-none"
-                  placeholder="Enter 0 for free course"
-                />
-              </div>
-              <div>
-                <label className="block font-medium text-gray-700 mb-1">Video URLs</label>
-                {form.videoLinks.map((link, idx) => (
-                  <div key={idx} className="flex gap-2 items-center mb-2">
-                    <input
-                      value={link}
-                      onChange={(e) => handleVideoChange(idx, e.target.value)}
-                      placeholder={`Video URL #${idx + 1}`}
-                      className="flex-1 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-orange-400 focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeVideoInput(idx)}
-                      className="px-3 py-1 border rounded text-sm hover:bg-gray-100"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addVideoInput}
-                  className="px-3 py-1 bg-orange-500 text-white rounded text-sm hover:bg-orange-600 transition"
-                >
-                  + Add Video
-                </button>
-              </div>
+            <div className="flex items-center gap-3">
 
-              <div className="flex gap-2">
+              {showCreate && (
                 <button
-                  type="submit"
-                  className={`px-4 py-2 rounded text-white shadow ${
-                    editingId
-                      ? "bg-amber-500 hover:bg-amber-600"
-                      : "bg-green-500 hover:bg-green-600"
-                  } transition`}
-                >
-                  {editingId ? "Save Changes" : "Create Course"}
-                </button>
-                <button
-                  type="button"
                   onClick={() => {
                     resetForm();
                     toggleCreate(false);
                   }}
-                  className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100"
+                  className="px-3 py-2 border rounded-md text-gray-700 hover:bg-gray-100 transition"
                 >
                   Cancel
                 </button>
-              </div>
-            </form>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Course List */}
-        <section>
-          <h2 className="text-lg font-semibold mb-3 text-gray-800">Your Courses</h2>
-          {loading && <div>Loading...</div>}
-          {error && <div className="text-red-600">{error}</div>}
+          {/* Collapsible Form */}
+          <div
+            ref={formRef}
+            className={`overflow-hidden transition-[max-height,opacity] duration-300 ${showCreate ? "max-h-[1200px] opacity-100" : "max-h-0 opacity-0"}`}
+          >
+            <div className="bg-white p-6 rounded-2xl shadow-md mb-8 border border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">{editingId ? "Edit Course" : "Create Course"}</h2>
 
-          <div className="grid gap-4">
-            {courses.map((c) => (
-              <div
-                key={c._id}
-                className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-semibold text-gray-900">{c.title}</div>
-                    <div className="text-sm text-gray-600">{c.description}</div>
-                    <div className="text-sm text-gray-500">Price: ₹{(c.price || 0) / 100}</div>
-                    {Array.isArray(c.videoLinks) && c.videoLinks.length > 0 && (
-                      <div className="mt-2 text-xs text-gray-500">
-                        {c.videoLinks.length} video{c.videoLinks.length > 1 ? "s" : ""}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                  value={form.title}
+                  onChange={(e) => setField("title", e.target.value)}
+                  placeholder="Course Title"
+                  className="w-full border border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+                  required
+                />
+
+                <textarea
+                  value={form.description}
+                  onChange={(e) => setField("description", e.target.value)}
+                  placeholder="Course Description"
+                  className="w-full border border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+                  rows={4}
+                />
+
+                <div>
+                  <label className="block font-medium text-gray-700 mb-2">Price (₹)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.price}
+                    onChange={(e) => setField("price", e.target.value)}
+                    className="w-full border border-gray-200 rounded-lg p-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+                    placeholder="Enter 0 for free course"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-medium text-gray-700 mb-2">Video URLs</label>
+                  {form.videoLinks.map((link, idx) => (
+                    <div key={idx} className="flex gap-2 items-center mb-2">
+                      <input
+                        value={link}
+                        onChange={(e) => handleVideoChange(idx, e.target.value)}
+                        placeholder={`Video URL #${idx + 1}`}
+                        className="flex-1 border border-gray-200 rounded-lg p-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeVideoInput(idx)}
+                        className="px-3 py-1 border rounded text-sm hover:bg-gray-100 transition"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={addVideoInput}
+                    className="mt-2 px-3 py-1 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white rounded text-sm hover:opacity-95 transition"
+                  >
+                    + Add Video
+                  </button>
+                </div>
+
+                <div className="flex gap-2 mt-4">
+                  <button
+                    type="submit"
+                    className={`px-4 py-2 rounded text-white font-medium shadow ${
+                      editingId ? "bg-indigo-500 hover:bg-indigo-600" : "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:opacity-95"
+                    } transition`}
+                  >
+                    {editingId ? "Save Changes" : "Create Course"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      resetForm();
+                      toggleCreate(false);
+                    }}
+                    className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          {/* Course List */}
+          <section>
+            <h2 className="text-lg font-semibold mb-3 text-gray-800">Your Courses</h2>
+            {loading && <div className="text-gray-600">Loading...</div>}
+            {error && <div className="text-red-600">{error}</div>}
+
+            <div className="grid gap-6">
+              {courses.map((c) => (
+                <div key={c._id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                  <div className="flex flex-col md:flex-row md:justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900 text-lg">{c.title}</div>
+                      <div className="text-sm text-gray-600 mt-1">{c.description}</div>
+                      <div className="text-sm text-gray-500 mt-2">Price: ₹{((c.price || 0) / 100).toFixed(2)}</div>
+                      {Array.isArray(c.videoLinks) && c.videoLinks.length > 0 && (
+                        <div className="mt-2 text-xs text-gray-500">
+                          {c.videoLinks.length} video{c.videoLinks.length > 1 ? "s" : ""}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-start md:flex-col gap-2 md:gap-3">
+                      <button
+                        onClick={() => navigate(`/courses/${c._id}`)}
+                        className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-gray-200 text-gray-800 rounded hover:shadow-sm transition"
+                      >
+                        <Eye className="w-4 h-4" /> View
+                      </button>
+
+                      <button
+                        onClick={() => openEdit(c)}
+                        className="flex items-center gap-2 px-3 py-2 text-sm bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white rounded hover:opacity-95 transition"
+                      >
+                        <Edit className="w-4 h-4" /> Edit
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(c._id)}
+                        className="flex items-center gap-2 px-3 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition"
+                      >
+                        <Trash2 className="w-4 h-4" /> Delete
+                      </button>
+
+                      <button
+                        onClick={() => openCreateQuiz(c._id)}
+                        className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-gray-200 text-gray-800 rounded hover:shadow-sm transition"
+                      >
+                        <PlusCircle className="w-4 h-4" /> Quiz
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Quizzes */}
+                  <div className="mt-4">
+                    <h3 className="font-medium text-sm mb-2 text-gray-700">Quizzes</h3>
+                    {loadingQuizzes[c._id] ? (
+                      <div className="text-sm text-gray-500">Loading quizzes...</div>
+                    ) : quizzes[c._id]?.length > 0 ? (
+                      <div className="flex flex-col gap-2">
+                        {quizzes[c._id].map((q) => (
+                          <div key={q._id} className="flex justify-between items-center bg-gray-50 p-2 rounded">
+                            <div>
+                              <div className="font-medium text-sm text-gray-800">{q.title}</div>
+                              {q.description && <div className="text-xs text-gray-600">{q.description}</div>}
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => openEditQuiz(q._id)}
+                                className="px-2 py-1 text-sm border rounded hover:bg-gray-100"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteQuiz(q._id, c._id)}
+                                className="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-gray-500">
+                        No quizzes for this course.{" "}
+                        <button onClick={() => openCreateQuiz(c._id)} className="ml-2 underline text-indigo-600 hover:text-indigo-700">
+                          Create one
+                        </button>
                       </div>
                     )}
                   </div>
-
-                  {/* Colorful Action Buttons */}
-                  <div className="flex flex-col gap-2 ml-4">
-                    <button
-                      onClick={() => navigate(`/courses/${c._id}`)}
-                      className="flex items-center gap-2 px-3 py-1.5 text-sm bg-teal-500 text-white rounded hover:bg-teal-600 transition"
-                    >
-                      <Eye className="w-4 h-4" /> View
-                    </button>
-                    <button
-                      onClick={() => openEdit(c)}
-                      className="flex items-center gap-2 px-3 py-1.5 text-sm bg-amber-500 text-white rounded hover:bg-amber-600 transition"
-                    >
-                      <Edit className="w-4 h-4" /> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(c._id)}
-                      className="flex items-center gap-2 px-3 py-1.5 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition"
-                    >
-                      <Trash2 className="w-4 h-4" /> Delete
-                    </button>
-                    <button
-                      onClick={() => openCreateQuiz(c._id)}
-                      className="flex items-center gap-2 px-3 py-1.5 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-                    >
-                      <PlusCircle className="w-4 h-4" /> Quiz
-                    </button>
-                  </div>
                 </div>
-
-                {/* Quizzes */}
-                <div className="mt-4">
-                  <h3 className="font-medium text-sm mb-2 text-gray-700">Quizzes</h3>
-                  {loadingQuizzes[c._id] ? (
-                    <div className="text-sm text-gray-500">Loading quizzes...</div>
-                  ) : quizzes[c._id]?.length > 0 ? (
-                    <div className="flex flex-col gap-2">
-                      {quizzes[c._id].map((q) => (
-                        <div
-                          key={q._id}
-                          className="flex justify-between items-center bg-gray-50 p-2 rounded"
-                        >
-                          <div>
-                            <div className="font-medium text-sm text-gray-800">{q.title}</div>
-                            {q.description && (
-                              <div className="text-xs text-gray-600">{q.description}</div>
-                            )}
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => openEditQuiz(q._id)}
-                              className="px-2 py-1 text-sm border rounded hover:bg-gray-100"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteQuiz(q._id, c._id)}
-                              className="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-sm text-gray-500">
-                      No quizzes for this course.{" "}
-                      <button
-                        onClick={() => openCreateQuiz(c._id)}
-                        className="ml-2 underline text-orange-600 hover:text-orange-700"
-                      >
-                        Create one
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {!loading && courses.length === 0 && (
-            <div className="text-gray-600 mt-4 text-center">
-              No courses created yet.
+              ))}
             </div>
-          )}
-        </section>
-      </div>
+
+            {!loading && courses.length === 0 && (
+              <div className="text-gray-600 mt-6 text-center">No courses created yet.</div>
+            )}
+          </section>
+        </div>
+      </main>
     </div>
   );
 }

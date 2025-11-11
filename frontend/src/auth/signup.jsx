@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import API from "../lib/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -9,7 +9,7 @@ export default function Signup() {
   const [role, setRole] = useState("student");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [strength, setStrength] = useState(""); // password strength indicator
+  const [strength, setStrength] = useState("");
   const navigate = useNavigate();
 
   // ✅ Simple password strength logic
@@ -41,7 +41,6 @@ export default function Signup() {
     }
   };
 
-  // ✅ Dynamic color for strength
   const getStrengthColor = () => {
     if (strength === "Weak") return "text-red-500";
     if (strength === "Medium") return "text-yellow-500";
@@ -50,12 +49,29 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100 px-4">
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-100 via-indigo-100 to-purple-100">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-30 bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-700 text-white shadow-2xl">
+        <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
+          <Link to="/" className="inline-flex items-center gap-4">
+            <div className="h-14 w-14 rounded-lg bg-white/10 flex items-center justify-center backdrop-blur">
+              <span className="text-white font-extrabold text-xl">SL</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight">Smart_Learn</span>
+              <span className="text-sm text-white/80">Learn. Practice. Grow.</span>
+            </div>
+          </Link>
+        </div>
+      </header>
+
+      {/* Signup Form */}
+      <main className="flex-1 flex items-center justify-center pt-10 pb-2 px-2">
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md border border-gray-100"
+        className="bg-white/80 backdrop-blur-md shadow-lg rounded-2xl p-4 w-full max-w-md mt-15"
       >
-        <h2 className="text-3xl font-bold mb-6 text-center text-orange-600">
+        <h2 className="text-3xl font-bold mb-6 text-center text-gray-900">
           Create an Account
         </h2>
 
@@ -67,13 +83,13 @@ export default function Signup() {
 
         {/* Name */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Full name</label>
+          <label className="block text-gray-700 font-medium mb-2">Full Name</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name"
             required
-            className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
+            className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition"
           />
         </div>
 
@@ -86,11 +102,11 @@ export default function Signup() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             required
-            className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
+            className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition"
           />
         </div>
 
-        {/* Password + strength meter */}
+        {/* Password */}
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">Password</label>
           <input
@@ -99,7 +115,7 @@ export default function Signup() {
             onChange={handlePasswordChange}
             placeholder="Choose a strong password"
             required
-            className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
+            className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition"
           />
           {password && (
             <p className={`text-sm mt-1 font-medium ${getStrengthColor()}`}>
@@ -115,7 +131,7 @@ export default function Signup() {
             <label
               className={`flex-1 cursor-pointer p-3 rounded-lg border ${
                 role === "student"
-                  ? "border-orange-500 bg-orange-50"
+                  ? "border-indigo-600 bg-indigo-50"
                   : "border-gray-200 bg-white"
               }`}
             >
@@ -134,7 +150,7 @@ export default function Signup() {
             <label
               className={`flex-1 cursor-pointer p-3 rounded-lg border ${
                 role === "instructor"
-                  ? "border-orange-500 bg-orange-50"
+                  ? "border-indigo-600 bg-indigo-50"
                   : "border-gray-200 bg-white"
               }`}
             >
@@ -156,21 +172,22 @@ export default function Signup() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-orange-500 hover:bg-orange-600 active:scale-[0.99] text-white font-semibold py-3 rounded-lg transition duration-200"
+          className="w-full bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-700 hover:opacity-90 text-white font-semibold py-3 rounded-lg transition duration-200"
         >
           {loading ? "Creating..." : "Sign Up"}
         </button>
 
-        <p className="mt-4 text-center text-gray-600 text-sm">
+        <p className="mt-4 text-center text-gray-700 text-sm">
           Already have an account?{" "}
-          <span
-            onClick={() => navigate("/login")}
-            className="text-orange-500 hover:underline cursor-pointer"
+          <Link
+            to="/login"
+            className="text-indigo-700 font-semibold hover:underline"
           >
             Login
-          </span>
+          </Link>
         </p>
       </form>
+      </main>
     </div>
   );
 }

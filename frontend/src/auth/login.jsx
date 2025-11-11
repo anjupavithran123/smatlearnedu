@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // 👈 eye icons
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import API, { setAuthToken } from "../lib/api";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -44,12 +44,28 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-100 via-indigo-100 to-purple-100">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-30 bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-700 text-white shadow-2xl">
+        <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
+          <Link to="/" className="inline-flex items-center gap-4">
+            <div className="h-14 w-14 rounded-lg bg-white/10 flex items-center justify-center backdrop-blur">
+              <span className="text-white font-extrabold text-xl">SL</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight">Smart_Learn</span>
+              <span className="text-sm text-white/80">Learn. Practice. Grow.</span>
+            </div>
+          </Link>
+        </div>
+      </header>
+
+      {/* Login Form */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-xl shadow-md w-full max-w-md"
+        className="bg-white/80 backdrop-blur-md p-8 rounded-xl shadow-lg w-full max-w-md mt-20"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+        <h2 className="text-3xl font-bold mb-6 text-center text-gray-900">
           Login
         </h2>
 
@@ -67,12 +83,12 @@ export default function Login() {
             value={email}
             required
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-orange-300"
+            className="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             placeholder="you@example.com"
           />
         </div>
 
-        {/* Password with eye toggle */}
+        {/* Password */}
         <div className="mb-6 relative">
           <label className="block text-sm font-medium mb-1">Password</label>
           <input
@@ -80,31 +96,31 @@ export default function Login() {
             value={password}
             required
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border rounded p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-300"
+            className="w-full border rounded p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             placeholder="Password"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-9 text-gray-500 hover:text-orange-500"
+            className="absolute right-3 top-9 text-gray-500 hover:text-indigo-600"
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition"
+          className="w-full bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-700 text-white py-2 rounded hover:opacity-90 transition"
         >
           {loading ? "Logging in..." : "Login"}
         </button>
 
         {/* Signup link */}
-        <p className="text-center text-sm text-gray-600 mt-4">
+        <p className="text-center text-sm text-gray-700 mt-4">
           Don’t have an account?{" "}
-          <Link to="/signup" className="text-orange-500 hover:underline">
+          <Link to="/signup" className="text-indigo-700 font-semibold hover:underline">
             Sign up
           </Link>
         </p>
