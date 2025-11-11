@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { FaChevronLeft } from "react-icons/fa";
 import API from "../lib/api";
 import defaultImage from "../assets/onlinelearn.jpg";
 
 export default function CourseList() {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -50,7 +52,17 @@ export default function CourseList() {
       <div className="pointer-events-none absolute -right-32 -bottom-32 w-96 h-96 rounded-full bg-gradient-to-br from-amber-200 via-orange-200 to-pink-200 opacity-25 blur-3xl transform rotate-6 animate-[spin_100s_linear_infinite]" />
 
       <div className="max-w-7xl mx-auto">
-        <header className="mb-8">
+        {/* Header with back button placed inside so it doesn't overlap content */}
+        <header className="mb-8 flex items-center gap-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/90 shadow focus:outline-none focus:ring-2 focus:ring-indigo-300 hover:bg-white transition"
+            aria-label="Go back"
+          >
+            <FaChevronLeft className="w-4 h-4 text-gray-800" />
+            <span className="hidden md:inline text-sm font-medium text-gray-800">Back</span>
+          </button>
+
           <div>
             <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
               Courses
