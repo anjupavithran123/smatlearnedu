@@ -278,13 +278,7 @@ export default function Course() {
                       await fetchProgress(totalVideos);
                     }}
                   />
-                  <button
-                    onClick={() => handlePayAndEnroll()}
-                    type="button"
-                    className="px-4 py-2 rounded-lg bg-orange-50 border border-orange-200 text-orange-600 hover:shadow transition"
-                  >
-                    Quick pay
-                  </button>
+              
                 </div>
               )
             ) : (
@@ -338,7 +332,7 @@ export default function Course() {
                     }}
                   />
                   <button onClick={() => handlePayAndEnroll()} className="px-3 py-2 text-sm underline text-orange-600">
-                    Quick pay
+                  
                   </button>
                 </div>
               </div>
