@@ -48,14 +48,27 @@ export default function Login() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-30 bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-700 text-white shadow-2xl">
         <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
+          {/* Logo and Title */}
           <Link to="/" className="inline-flex items-center gap-4">
             <div className="h-14 w-14 rounded-lg bg-white/10 flex items-center justify-center backdrop-blur">
               <span className="text-white font-extrabold text-xl">SL</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight">Smart_Learn</span>
-              <span className="text-sm text-white/80">Learn. Practice. Grow.</span>
+              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Smart_Learn
+              </span>
+              <span className="text-sm text-white/80">
+                Learn. Practice. Grow.
+              </span>
             </div>
+          </Link>
+
+          {/* Home Button */}
+          <Link
+            to="/"
+            className="text-white font-semibold text-lg bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition"
+          >
+            Home
           </Link>
         </div>
       </header>
@@ -120,7 +133,10 @@ export default function Login() {
         {/* Signup link */}
         <p className="text-center text-sm text-gray-700 mt-4">
           Don’t have an account?{" "}
-          <Link to="/signup" className="text-indigo-700 font-semibold hover:underline">
+          <Link
+            to="/signup"
+            className="text-indigo-700 font-semibold hover:underline"
+          >
             Sign up
           </Link>
         </p>

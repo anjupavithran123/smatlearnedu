@@ -27,7 +27,7 @@ function Navbar() {
   const navigate = useNavigate();
   return (
     <nav className="fixed top-0 left-0 w-full z-50 shadow-lg bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-700 text-white">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-7 py-7 flex items-center justify-between">
         {/* logo */}
         <Link to="/" className="text-2xl sm:text-3xl font-bold text-white inline-flex items-center gap-3">
           <span className="h-10 w-10 rounded-lg bg-white/10 flex items-center justify-center text-xl font-extrabold">SL</span>
